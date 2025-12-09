@@ -158,6 +158,164 @@ Plugins for: Revit, Rhino, Grasshopper, AutoCAD, Civil 3D, Excel, Unreal Engine,
 
 ---
 
+## Rhino 3D & Grasshopper Ecosystem
+
+### Rhino 3D
+
+Rhino (Rhinoceros 3D) is a powerful NURBS-based 3D modeling tool widely used in architecture, industrial design, and AEC.
+
+**Scripting & Automation:**
+- **Python 3 (CPython)** - Full support in Rhino 8 with NumPy and PyPI packages
+- **RhinoCommon SDK** - Complete .NET API for geometry operations
+- **RhinoScriptSyntax** - Hundreds of easy-to-use Python functions
+- **Unified Script Editor** - Debug in both Rhino and Grasshopper (Windows/macOS)
+
+**Client Libraries:**
+- `compute_rhino3d` - Python client for Rhino Compute
+- `rhino3dm.py` - Python library for reading/writing 3DM files
+
+### Grasshopper (Visual Programming)
+
+Grasshopper is Rhino's visual programming environment for parametric design.
+
+**Automation Features:**
+- Visual node-based scripting without code
+- Automatic iteration on data lists
+- Python/C# script components for custom logic
+- GHPY compiler for creating reusable components
+- Integration with external tools via Hops
+
+**Key Integrations:**
+- Direct connection to Rhino geometry
+- VisualARQ BIM components
+- Speckle connector for data sync
+- ShapeDiver for cloud deployment
+
+### Resources
+- [Rhino API References](https://developer.rhino3d.com/api/)
+- [Rhino Scripting Guide](https://www.rhino3d.com/features/developer/scripting/)
+- [Python APIs for Rhino](https://developer.rhino3d.com/guides/rhinopython/apis-for-python/)
+- [Rhino.Python Guides](https://developer.rhino3d.com/guides/rhinopython/)
+- [McNeel Developer Guides](https://developer.rhino3d.com/guides/)
+
+---
+
+## Rhino Compute (Headless/Cloud)
+
+Rhino Compute is an open-source REST API server for running Rhino and Grasshopper headless (without GUI).
+
+### Core Capabilities
+- **Stateless REST API** - Access RhinoCommon SDK over HTTP
+- **Headless Grasshopper** - Solve definitions server-side
+- **File Operations** - Read/write 3DM and other formats
+- **Geometry Operations** - Create and manipulate curves, surfaces, solids
+
+### Client Libraries
+```bash
+pip install compute-rhino3d  # Python client
+```
+- Python, C# (.NET), and JavaScript clients available
+- Serialize operations via Grasshopper or Python scripts
+
+### Deployment Options
+- **Local Development** - Run on developer machine with Rhino 8
+- **IIS Server** - Windows Server deployment with bootstrap script
+- **Docker** - Containerized deployments for scalability
+
+### Hops (Grasshopper Component)
+- Call external Grasshopper definitions or Python functions
+- Connect to local or remote Rhino Compute servers
+- Enables distributed computation
+
+### Licensing
+- Core-hour billing for production use
+- Free for local development/testing/prototyping
+- [Compute Licensing Guide](https://developer.rhino3d.com/guides/compute/)
+
+### Resources
+- [Rhino Compute Official](https://www.rhino3d.com/compute)
+- [GitHub: compute.rhino3d](https://github.com/mcneel/compute.rhino3d)
+- [Compute Developer Guides](https://developer.rhino3d.com/guides/compute/)
+- [App Server for Grasshopper](https://github.com/mcneel/compute.rhino3d.appserver)
+
+---
+
+## VisualARQ (BIM for Rhino)
+
+VisualARQ is a BIM plugin that brings architectural modeling and documentation to Rhino.
+
+### Key Features
+- **Parametric BIM Objects** - Walls, curtain walls, beams, columns, stairs, openings
+- **Automatic Documentation** - Plans, sections, elevations generated from 3D model
+- **Quantification** - Surfaces, dimensions, components, quantities
+- **Style System** - Customizable object styles with parametric properties
+
+### Automation & Scripting
+- **Grasshopper Components** - Create/modify VisualARQ objects via visual programming
+- **VisualARQ API** - Programmatic access for automation
+- **RhinoScript Integration** - Automate repetitive modeling tasks
+
+### IFC Interoperability
+- Built-in IFC import/export plugin
+- Supports IFC 2x3 and IFC4
+- Exchange with Revit, ArchiCAD, and other AEC software
+
+### Documentation Automation
+- Section & Plan Generator - Automatic 2D drawings from 3D model
+- Real-time sections with dynamic updates
+- Rendered and interior views
+
+### Resources
+- [VisualARQ Official](https://www.visualarq.com/)
+- [VisualARQ on Food4Rhino](https://www.food4rhino.com/en/app/visualarq)
+- [SimplyRhino - VisualARQ Guide](https://simplyrhino.co.uk/3d-modelling-software/visualarq)
+
+---
+
+## ShapeDiver (Grasshopper Cloud Platform)
+
+ShapeDiver is a cloud platform that turns Grasshopper definitions into scalable web applications and APIs.
+
+### How It Works
+1. Upload Grasshopper definition to ShapeDiver
+2. Platform exposes inputs/outputs via REST API
+3. Access via web viewer, custom apps, or API calls
+4. Automatic scaling, caching, and load balancing
+
+### Key Features
+- **RESTful API** - Access Grasshopper models without the viewer
+- **SDKs** - Integrate into custom applications
+- **3D Viewer** - Embeddable WebGL viewer for any website
+- **Backend Infrastructure** - Servers running Rhino + Grasshopper in the cloud
+
+### Use Cases
+- **Product Configurators** - Interactive 3D customization
+- **Design Automation** - Parametric design as a service
+- **Manufacturing Integration** - Scan-to-print workflows
+- **Internal Tools** - Custom design applications
+
+### Platform Stats
+- 5,000+ registered users
+- 95+ countries
+- Enterprise-grade reliability
+
+### ShapeDiver vs Rhino Compute
+| Feature | ShapeDiver | Rhino Compute |
+|---------|------------|---------------|
+| Hosting | Managed cloud | Self-hosted |
+| Setup | Upload & go | Server configuration |
+| Scaling | Automatic | Manual |
+| Viewer | Included | Build your own |
+| Pricing | Subscription | Core-hour billing |
+
+### Resources
+- [ShapeDiver Official](https://shapediver.com/)
+- [What is ShapeDiver?](https://help.shapediver.com/doc/what-is-shapediver)
+- [How It Works](https://www.shapediver.com/how-it-works)
+- [ShapeDiver vs Rhino Compute](https://shapediver.com/blog/shapediver-rhino-compute-explained)
+
+---
+
 ## Open Source Tools & Libraries
 
 ### IfcOpenShell
@@ -263,6 +421,11 @@ Plugins for: Revit, Rhino, Grasshopper, AutoCAD, Civil 3D, Excel, Unreal Engine,
 | Open source data connectivity | Speckle + SpecklePy |
 | Cross-platform BIM data sync | Speckle Automate |
 | No-code ACC integration | ACC Connect |
+| Parametric 3D modeling | Rhino 3D + Grasshopper |
+| Headless geometry server | Rhino Compute |
+| BIM in Rhino | VisualARQ |
+| Grasshopper cloud deployment | ShapeDiver |
+| Custom product configurators | ShapeDiver + Grasshopper |
 
 ---
 
@@ -300,3 +463,26 @@ Plugins for: Revit, Rhino, Grasshopper, AutoCAD, Civil 3D, Excel, Unreal Engine,
 - [Speckle GitHub Organization](https://github.com/specklesystems)
 - [Build with Speckle](https://speckle.systems/build-with-speckle/)
 - [OSArch Wiki - Speckle](https://wiki.osarch.org/index.php?title=Speckle)
+
+### Rhino 3D & Grasshopper
+- [Rhino API References](https://developer.rhino3d.com/api/)
+- [Rhino Scripting Guide](https://www.rhino3d.com/features/developer/scripting/)
+- [Python APIs for Rhino](https://developer.rhino3d.com/guides/rhinopython/apis-for-python/)
+- [Rhino.Python Guides](https://developer.rhino3d.com/guides/rhinopython/)
+- [McNeel Developer Guides](https://developer.rhino3d.com/guides/)
+
+### Rhino Compute
+- [Rhino Compute Official](https://www.rhino3d.com/compute)
+- [GitHub: compute.rhino3d](https://github.com/mcneel/compute.rhino3d)
+- [Compute Developer Guides](https://developer.rhino3d.com/guides/compute/)
+- [App Server for Grasshopper](https://github.com/mcneel/compute.rhino3d.appserver)
+
+### VisualARQ
+- [VisualARQ Official](https://www.visualarq.com/)
+- [VisualARQ on Food4Rhino](https://www.food4rhino.com/en/app/visualarq)
+
+### ShapeDiver
+- [ShapeDiver Official](https://shapediver.com/)
+- [What is ShapeDiver?](https://help.shapediver.com/doc/what-is-shapediver)
+- [How It Works](https://www.shapediver.com/how-it-works)
+- [ShapeDiver vs Rhino Compute](https://shapediver.com/blog/shapediver-rhino-compute-explained)
