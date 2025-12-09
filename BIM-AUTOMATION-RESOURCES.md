@@ -316,6 +316,149 @@ ShapeDiver is a cloud platform that turns Grasshopper definitions into scalable 
 
 ---
 
+## AI-Powered Design Tools
+
+### Hypar
+
+Hypar is a cloud-based generative design platform for AEC, founded by the creators of Dynamo and former Revit product leads.
+
+**Key Features:**
+- **Generative Design** - Create hundreds of design options using algorithms
+- **Cloud-Based** - Runs on microservices, no desktop installation needed
+- **BIM Integration** - Export to Revit, Rhino, IFC, OBJ, glTF
+- **API & SDKs** - Python and C# for custom function development
+
+**Hypar 2.0 (2024-2025):**
+- AI-powered layout suggestions
+- Automatic mass, structural grid, and column generation
+- Space planning focus with intuitive UI
+- Text-to-BIM capabilities
+
+**Pricing:**
+- Free tier for individuals/students
+- Pro tier for professionals
+- Enterprise for custom deployment
+
+```bash
+pip install hypar  # Python SDK
+```
+
+**Resources:**
+- [Hypar.io](https://hypar.io/)
+- [Hypar on PyPI](https://pypi.org/project/hypar/)
+- [AEC Magazine - Hypar 2.0](https://aecmag.com/features/hypar-2-0/)
+
+### TestFit
+
+TestFit is an AI-powered real estate feasibility platform for rapid site planning and building optimization.
+
+**Core Capabilities:**
+- **Site Solver** - Generate site plans instantly with AI
+- **Real-Time Feasibility** - Unit yield, parking ratios, GFA analysis
+- **Cost Estimation** - Automatic cost breakdowns
+- **Generative Design** - Explore multiple layouts automatically
+
+**Productivity Gains:**
+- Site planning: 2 weeks → 2 days
+- 2-3x more design alternatives on fixed budget
+- 10-15% margin accuracy in 30-60 minutes
+- 650+ deals evaluated weekly on platform
+
+**Supported Project Types:**
+- Multi-Family, Single-Family
+- Industrial, Hotel, Retail
+- Parking structures
+
+**Export Options:**
+- Revit, SketchUp, AutoCAD (.dxf), Excel (.csv)
+
+**Resources:**
+- [TestFit.io](https://www.testfit.io/)
+- [TestFit Site Solver](https://www.testfit.io/site-solver)
+- [TestFit for Architects](https://www.testfit.io/roles/architects)
+
+---
+
+## Viktor (Python Engineering Apps)
+
+Viktor is a low-code platform for building and sharing engineering web applications using Python.
+
+### Key Features
+- **Python-Based** - Use familiar libraries (NumPy, pandas, etc.)
+- **Browser Apps** - No local installation for end users
+- **AI App Builder** - Generate Python code from natural language
+- **Integrations** - Excel, Grasshopper, Dynamo, Matplotlib, Plotly
+
+### How It Works
+1. Write Python code or use AI App Builder
+2. Platform handles UI, authentication, file exchange
+3. Deploy as browser-based app
+4. Share with team - no coding required to use
+
+### AEC Use Cases
+- Structural calculations
+- Model checks and validation
+- Geometry processing
+- Automated reporting
+- Custom design tools
+
+### Autodesk Integration
+- Available on Autodesk App Store
+- Works with ACC & BIM 360
+- Autodesk Platform Services integration
+
+### Resources
+- [Viktor.ai](https://www.viktor.ai/)
+- [Viktor GitHub](https://github.com/viktor-platform)
+- [Python for Engineers - AEC Workflows](https://www.viktor.ai/blog/137/Python-for-engineers-automatin-AEC-workflows)
+- [Viktor on Autodesk App Store](https://apps.autodesk.com/BIM360/en/Detail/Index?id=7289593180196221362)
+
+---
+
+## Unreal Engine & Twinmotion (Visualization)
+
+Epic Games' real-time visualization tools for architectural visualization and design review.
+
+### Twinmotion
+
+Powered by Unreal Engine 5, Twinmotion is an intuitive real-time visualization tool for AEC.
+
+**Key Features:**
+- **Instant Sync** - Live connection with Revit, Rhino, SketchUp, ArchiCAD, and 10+ apps
+- **1M+ Assets** - Built-in library of materials, vegetation, furniture
+- **Nanite** - Handle massive polygon counts (added in 2025.2)
+- **VR Support** - Immersive design review
+
+**Supported Software:**
+3ds Max, Allplan, ArchiCAD, BricsCAD, form•Z, Revit, Rhino, RIKCAD, SketchUp Pro, SOLIDWORKS, Vectorworks
+
+### Datasmith
+
+Open pipeline for bringing CAD/BIM data into Unreal Engine.
+
+- **20+ CAD Formats** - Revit, Rhino, SketchUp, 3ds Max, etc.
+- **Free** - Available to all users
+- **Revit Exporter** - Now developed by Autodesk
+- Alternative to FBX with better geometry handling
+
+### Industry Adoption
+Used by: Gensler, HOK, Populous, Foster+Partners, ARUP, Zaha Hadid Architects, and more.
+
+### Workflow
+1. Design in BIM software (Revit, Rhino, etc.)
+2. Sync to Twinmotion via Direct Link
+3. Apply materials, lighting, environment
+4. Export images, videos, VR experiences
+5. Optionally import to Unreal Engine for advanced features
+
+### Resources
+- [Twinmotion](https://www.twinmotion.com/)
+- [Datasmith Plugins](https://www.unrealengine.com/en-US/datasmith/plugins)
+- [Twinmotion to Unreal Importer](https://www.unrealengine.com/en-US/blog/twinmotion-to-unreal-engine-importer-bridging-architectural-worlds)
+- [AEC Magazine - Unreal in AEC](https://aecmag.com/visualisation/an-epic-investment-unreal-engine-in-architecture-aec-twinmotion/)
+
+---
+
 ## Open Source Tools & Libraries
 
 ### IfcOpenShell
@@ -350,6 +493,102 @@ ShapeDiver is a cloud platform that turns Grasshopper definitions into scalable 
 - Low-cost, high-performance web-based viewing
 - Full JavaScript API
 - [xeokit BIM Viewer](https://xeokit.github.io/xeokit-bim-viewer/)
+
+---
+
+## Blender Procedural Modeling
+
+### Geometry Nodes
+
+Blender's built-in procedural/parametric modeling system, similar to Grasshopper or Houdini.
+
+**Architectural Applications:**
+- **Facade Design** - Procedural patterns responding to sunlight, wind, orientation
+- **Parametric Components** - Windows, doors, structural elements
+- **Modular Systems** - Walls, panels, repeating elements
+- **Rapid Iteration** - Adjust parameters, see instant results
+
+**Key Benefits:**
+- Non-destructive workflow
+- Parametric control via sliders
+- Automation of repetitive tasks
+- Free and open-source
+
+**Resources:**
+- [Geometry Nodes from Scratch - Blender Studio](https://studio.blender.org/training/geometry-nodes-from-scratch/)
+- [Blender 3D Architect - Parametric Architecture](https://www.blender3darchitect.com/modeling-for-architecture/parametric-architecture-with-geometry-nodes/)
+- [PAACADEMY - Parametric Architecture with Blender](https://paacademy.com/course/parametric-architecture-with-blender)
+
+### Sverchok
+
+Sverchok is Blender's equivalent to Grasshopper - a visual programming addon for parametric architecture.
+
+**Key Features:**
+- **Visual Node Programming** - No coding required
+- **Grasshopper-Like** - Familiar workflow for Rhino users
+- **Advanced Nodes** - Profile parametric, Generative art, CSG Boolean, Bmesh operations
+- **Python Access** - Use bpy API with Get/Set nodes
+- **Export** - Multiple format support
+
+**Comparison:**
+Similar to Houdini VOP, Softimage ICE, Maya Point SOuP, but unique for parametric architectural design.
+
+**Installation:**
+Works with Blender 2.93+ (tested through 5.1). Install via Preferences > Add-ons.
+
+**Resources:**
+- [Sverchok Documentation](https://nortikin.github.io/sverchok/)
+- [GitHub: Sverchok](https://github.com/nortikin/sverchok)
+- [OSArch Wiki - Sverchok](https://wiki.osarch.org/index.php?title=Sverchok)
+
+### Other Blender Architecture Add-ons
+- **Sorcar** - Alternative parametric node system
+- **Archipack** - Architectural modeling (walls, windows, doors)
+- **Building Tools** - Quick building generation
+- **Tissue** - Tessellation and advanced mesh manipulation
+
+---
+
+## Topologic / TopologicPy
+
+Topologic is an open-source spatial modeling library for AEC using non-manifold topology (NMT).
+
+### Overview
+- **Spatial Topology** - Hierarchical and topological 3D representations
+- **Building Intelligence** - Enriches BIM with topology and AI
+- **Graph-Based** - Natural fit for Graph Machine Learning (GML)
+- **Open Source** - AGPL v3.0 license
+
+### Installation
+```bash
+pip install topologicpy
+```
+Requires Python 3.10+
+
+### Core Capabilities
+- **Defeaturing** - Simplify geometry for faster analysis
+- **Encoded Meshing** - Maintain topological consistency
+- **Spatial Analysis** - Building performance, energy, daylighting
+- **Graph Representation** - Connect with AI/ML pipelines
+
+### Data Formats
+- IFC, OBJ, BREP, HBJSON, CSV
+- Speckle integration for cloud sync
+
+### Interfaces
+- Command-line and Python scripts
+- Visual data flow plugins (Grasshopper, Dynamo)
+- Blender via TopologicSverchok
+- Streamlit for web interfaces
+
+### Authors
+Developed by Cardiff University and UCL (Wassim Jabi, Robert Aish, et al.)
+
+### Resources
+- [Topologic.app](https://topologic.app/)
+- [GitHub: topologicpy](https://github.com/wassimj/topologicpy)
+- [Documentation](https://topologicpy.readthedocs.io/)
+- [TopologicSverchok](https://github.com/wassimj/TopologicSverchok)
 
 ---
 
@@ -426,6 +665,12 @@ ShapeDiver is a cloud platform that turns Grasshopper definitions into scalable 
 | BIM in Rhino | VisualARQ |
 | Grasshopper cloud deployment | ShapeDiver |
 | Custom product configurators | ShapeDiver + Grasshopper |
+| AI generative design | Hypar |
+| Real estate feasibility | TestFit |
+| Python engineering web apps | Viktor |
+| Architectural visualization | Twinmotion / Unreal Engine |
+| Open source parametric (Blender) | Geometry Nodes + Sverchok |
+| Spatial topology & AI | TopologicPy |
 
 ---
 
@@ -486,3 +731,32 @@ ShapeDiver is a cloud platform that turns Grasshopper definitions into scalable 
 - [What is ShapeDiver?](https://help.shapediver.com/doc/what-is-shapediver)
 - [How It Works](https://www.shapediver.com/how-it-works)
 - [ShapeDiver vs Rhino Compute](https://shapediver.com/blog/shapediver-rhino-compute-explained)
+
+### AI Design Tools
+- [Hypar.io](https://hypar.io/)
+- [Hypar on PyPI](https://pypi.org/project/hypar/)
+- [AEC Magazine - Hypar 2.0](https://aecmag.com/features/hypar-2-0/)
+- [TestFit.io](https://www.testfit.io/)
+- [TestFit Site Solver](https://www.testfit.io/site-solver)
+
+### Viktor
+- [Viktor.ai](https://www.viktor.ai/)
+- [Viktor GitHub](https://github.com/viktor-platform)
+- [Python for Engineers - AEC Workflows](https://www.viktor.ai/blog/137/Python-for-engineers-automatin-AEC-workflows)
+
+### Unreal Engine & Twinmotion
+- [Twinmotion](https://www.twinmotion.com/)
+- [Datasmith Plugins](https://www.unrealengine.com/en-US/datasmith/plugins)
+- [AEC Magazine - Unreal in AEC](https://aecmag.com/visualisation/an-epic-investment-unreal-engine-in-architecture-aec-twinmotion/)
+
+### Blender Procedural
+- [Geometry Nodes - Blender Studio](https://studio.blender.org/training/geometry-nodes-from-scratch/)
+- [Blender 3D Architect](https://www.blender3darchitect.com/modeling-for-architecture/parametric-architecture-with-geometry-nodes/)
+- [Sverchok Documentation](https://nortikin.github.io/sverchok/)
+- [GitHub: Sverchok](https://github.com/nortikin/sverchok)
+
+### Topologic
+- [Topologic.app](https://topologic.app/)
+- [GitHub: topologicpy](https://github.com/wassimj/topologicpy)
+- [TopologicPy Documentation](https://topologicpy.readthedocs.io/)
+- [TopologicSverchok](https://github.com/wassimj/TopologicSverchok)
