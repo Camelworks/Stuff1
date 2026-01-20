@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itamar Runs to the Fridge! 🎂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 20px;
+            max-width: 900px;
+        }
+
+        #gameCanvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            display: block;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 70%, #90EE90 70%, #90EE90 100%);
+        }
+
+        #ui {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin: 5px;
+        }
+
+        .highlight {
+            color: #667eea;
+        }
+
+        #instructions {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+
+        .birthday {
+            color: #ff6b6b;
+        }
+
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <h1>🎮 <span class="birthday">ITAMAR</span> RUNS TO THE FRIDGE! 🎂</h1>
+        <canvas id="gameCanvas" width="850" height="500"></canvas>
+        <div id="ui">
+            <div class="stat">Score: <span class="highlight" id="score">0</span></div>
+            <div class="stat">Distance: <span class="highlight" id="distance">0</span>m</div>
+            <div class="stat">Lives: <span class="highlight" id="lives">3</span> ❤️</div>
+        </div>
+        <div id="instructions">
+            Press <strong>SPACE</strong> or <strong>UP ARROW</strong> to jump! Reach the fridge without losing all lives! 🎉
+        </div>
+    </div>
+
+    <div id="startScreen">
+        <h2 style="font-size: 32px; color: #667eea; margin-bottom: 20px;">🎂 Happy 13th Birthday Itamar! 🎂</h2>
+        <p style="font-size: 18px; color: #666; margin-bottom: 10px;">Help Itamar reach the fridge!</p>
+        <p style="font-size: 14px; color: #999;">Jump over obstacles and collect points!</p>
+        <button class="btn" onclick="startGame()">START GAME 🎮</button>
+    </div>
+
+    <div id="gameOverScreen" class="hidden">
+        <h2 id="gameOverTitle" style="font-size: 32px; margin-bottom: 20px;">Game Over!</h2>
+        <p id="finalScore" style="font-size: 20px; color: #666; margin-bottom: 10px;"></p>
+        <p id="finalDistance" style="font-size: 18px; color: #999;"></p>
+        <button class="btn" onclick="restartGame()">PLAY AGAIN 🔄</button>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
