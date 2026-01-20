@@ -10,12 +10,20 @@ let gameSpeed = 5;
 let obstacleTimer = 0;
 let distanceTimer = 0;
 
+// Player image
+const playerImage = new Image();
+playerImage.src = 'itamar.png'; // Will use Itamar's photo!
+let imageLoaded = false;
+playerImage.onload = () => {
+    imageLoaded = true;
+};
+
 // Player
 const player = {
     x: 100,
     y: canvas.height - 120,
-    width: 40,
-    height: 60,
+    width: 50,
+    height: 70,
     velocityY: 0,
     jumping: false,
     gravity: 0.8,
@@ -62,84 +70,31 @@ function updateClouds() {
     });
 }
 
-// Draw player (stick figure style)
+// Draw player (using Itamar's image!)
 function drawPlayer() {
-    const headRadius = 15;
-    const headX = player.x + player.width / 2;
-    const headY = player.y + headRadius;
+    if (imageLoaded) {
+        // Draw Itamar's image
+        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+    } else {
+        // Fallback: simple stick figure while image loads
+        const headRadius = 15;
+        const headX = player.x + player.width / 2;
+        const headY = player.y + headRadius;
 
-    // Head
-    ctx.fillStyle = '#FFD1A4';
-    ctx.beginPath();
-    ctx.arc(headX, headY, headRadius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        // Head
+        ctx.fillStyle = '#FFD1A4';
+        ctx.beginPath();
+        ctx.arc(headX, headY, headRadius, 0, Math.PI * 2);
+        ctx.fill();
 
-    // Hair (curly)
-    ctx.fillStyle = '#4A3728';
-    ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-        const angle = (Math.PI / 6) * i - Math.PI / 3;
-        const curlX = headX + Math.cos(angle) * headRadius;
-        const curlY = headY - headRadius + Math.sin(angle) * 5;
-        ctx.arc(curlX, curlY, 5, 0, Math.PI * 2);
+        // Body
+        ctx.strokeStyle = '#5B9BD5';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(headX, headY + headRadius);
+        ctx.lineTo(headX, player.y + player.height - 15);
+        ctx.stroke();
     }
-    ctx.fill();
-
-    // Eyes
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.arc(headX - 5, headY - 2, 2, 0, Math.PI * 2);
-    ctx.arc(headX + 5, headY - 2, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Smile
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(headX, headY + 3, 6, 0, Math.PI);
-    ctx.stroke();
-
-    // Body
-    const bodyTop = headY + headRadius;
-    const bodyBottom = player.y + player.height - 15;
-
-    ctx.strokeStyle = '#5B9BD5';
-    ctx.lineWidth = 8;
-    ctx.beginPath();
-    ctx.moveTo(headX, bodyTop);
-    ctx.lineTo(headX, bodyBottom);
-    ctx.stroke();
-
-    // Arms (animated when running)
-    const armSwing = Math.sin(Date.now() / 100) * 10;
-    ctx.strokeStyle = '#5B9BD5';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(headX, bodyTop + 5);
-    ctx.lineTo(headX - 15, bodyTop + 20 + armSwing);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(headX, bodyTop + 5);
-    ctx.lineTo(headX + 15, bodyTop + 20 - armSwing);
-    ctx.stroke();
-
-    // Legs (animated when running)
-    const legSwing = Math.sin(Date.now() / 100) * 15;
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(headX, bodyBottom);
-    ctx.lineTo(headX - 10, player.y + player.height + legSwing);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(headX, bodyBottom);
-    ctx.lineTo(headX + 10, player.y + player.height - legSwing);
-    ctx.stroke();
 }
 
 // Draw obstacle
