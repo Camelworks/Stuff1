@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ferry Lines to Japan</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0d1117; color: #e6edf3; }
+
+    #header {
+      padding: 16px 24px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #header h1 { font-size: 1.3rem; font-weight: 600; }
+    #header span { font-size: 0.85rem; color: #8b949e; }
+
+    #map { width: 100%; height: calc(100vh - 57px); }
+
+    /* Legend */
+    .legend {
+      background: rgba(22, 27, 34, 0.95);
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-width: 200px;
+      backdrop-filter: blur(4px);
+    }
+    .legend h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8b949e; margin-bottom: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; font-size: 0.83rem; }
+    .legend-line { width: 32px; height: 3px; border-radius: 2px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; }
+
+    /* Popup */
+    .leaflet-popup-content-wrapper {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #e6edf3;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .leaflet-popup-tip { background: #161b22; }
+    .leaflet-popup-content { margin: 12px 16px; min-width: 180px; }
+    .popup-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+    .popup-meta { font-size: 0.8rem; color: #8b949e; line-height: 1.6; }
+    .popup-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .badge-active { background: #1f6feb; color: #fff; }
+    .badge-suspended { background: #6e4040; color: #ffa0a0; }
+    .badge-seasonal { background: #3d4a1f; color: #b5e853; }
+
+    /* Tooltip */
+    .leaflet-tooltip {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .leaflet-tooltip-left::before, .leaflet-tooltip-right::before { border-right-color: #30363d; border-left-color: #30363d; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Ferry Lines to Japan</h1>
+  <span>International ferry routes — hover routes &amp; ports for details</span>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Map setup ──────────────────────────────────────────────────────────────
+const map = L.map('map', { center: [34, 128], zoom: 5, zoomControl: true });
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
+// ── Colours by country of origin ──────────────────────────────────────────
+const COLORS = {
+  china:  '#f78166',  // red-orange
+  korea:  '#58a6ff',  // blue
+  russia: '#bc8cff',  // purple
+  taiwan: '#ffa657',  // amber
+};
+
+// ── Port data ──────────────────────────────────────────────────────────────
+const ports = {
+  // Japanese ports
+  osaka:        { name: 'Osaka',          latlng: [34.646, 135.406], country: 'Japan' },
+  kobe:         { name: 'Kobe',           latlng: [34.682, 135.185], country: 'Japan' },
+  shimonoseki:  { name: 'Shimonoseki',    latlng: [33.954, 130.937], country: 'Japan' },
+  hakata:       { name: 'Hakata (Fukuoka)',latlng: [33.598, 130.399], country: 'Japan' },
+  sakaiminato:  { name: 'Sakaiminato',    latlng: [35.546, 133.228], country: 'Japan' },
+  naha:         { name: 'Naha (Okinawa)', latlng: [26.218, 127.665], country: 'Japan' },
+  izuhara:      { name: 'Izuhara (Tsushima)',latlng: [34.199, 129.290], country: 'Japan' },
+  hiroshima:    { name: 'Hiroshima',      latlng: [34.391, 132.455], country: 'Japan' },
+  // Chinese ports
+  shanghai:     { name: 'Shanghai',       latlng: [31.381, 121.618], country: 'China' },
+  tianjin:      { name: 'Tianjin (Xingang)', latlng: [38.993, 117.728], country: 'China' },
+  dalian:       { name: 'Dalian',         latlng: [38.929, 121.641], country: 'China' },
+  qingdao:      { name: 'Qingdao',        latlng: [36.063, 120.361], country: 'China' },
+  weihai:       { name: 'Weihai',         latlng: [37.506, 122.116], country: 'China' },
+  // Korean ports
+  busan:        { name: 'Busan',          latlng: [35.097, 129.032], country: 'South Korea' },
+  incheon:      { name: 'Incheon',        latlng: [37.455, 126.706], country: 'South Korea' },
+  donghae:      { name: 'Donghae',        latlng: [37.524, 129.114], country: 'South Korea' },
+  // Russian ports
+  vladivostok:  { name: 'Vladivostok',    latlng: [43.115, 131.882], country: 'Russia' },
+};
+
+// ── Route data ─────────────────────────────────────────────────────────────
+// status: 'active' | 'suspended' | 'seasonal'
+const routes = [
+  // ── China ────────────────────────────────────────────────────────────────
+  {
+    id: 'sh-osaka',
+    from: 'shanghai', to: 'osaka',
+    operator: 'Shanghai Ferry Co. / Japan China International Ferry',
+    frequency: 'Weekly',
+    duration: '~48 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  {
+    id: 'sh-kobe',
+    from: 'shanghai', to: 'kobe',
+    operator: 'Orient Ferry (China)',
+    frequency: 'Weekly',
+    duration: '~46 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  {
+    id: 'tj-kobe',
+    from: 'tianjin', to: 'kobe',
+    operator: 'China-Japan International Ferry',
+    frequency: 'Weekly',
+    duration: '~45 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  {
+    id: 'dl-kobe',
+    from: 'dalian', to: 'kobe',
+    operator: 'China-Japan International Ferry',
+    frequency: 'Weekly',
+    duration: '~35 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  {
+    id: 'qd-shimonoseki',
+    from: 'qingdao', to: 'shimonoseki',
+    operator: 'Qingdao International Ferry',
+    frequency: 'Weekly',
+    duration: '~34 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  {
+    id: 'wh-osaka',
+    from: 'weihai', to: 'osaka',
+    operator: 'Xinjianzhen International Ferry',
+    frequency: 'Weekly',
+    duration: '~40 hrs',
+    status: 'active',
+    color: COLORS.china,
+  },
+  // ── South Korea ──────────────────────────────────────────────────────────
+  {
+    id: 'busan-shimonoseki',
+    from: 'busan', to: 'shimonoseki',
+    operator: 'Kampu Ferry (関釜フェリー)',
+    frequency: 'Daily',
+    duration: '~14 hrs',
+    status: 'active',
+    color: COLORS.korea,
+  },
+  {
+    id: 'busan-hakata',
+    from: 'busan', to: 'hakata',
+    operator: 'Camellia Line / Kyushu Yusen / JR Beetle (hydrofoil)',
+    frequency: 'Multiple daily',
+    duration: '3–6 hrs',
+    status: 'active',
+    color: COLORS.korea,
+  },
+  {
+    id: 'busan-osaka',
+    from: 'busan', to: 'osaka',
+    operator: 'Panstar Line (팬스타라인)',
+    frequency: 'Weekly',
+    duration: '~19 hrs',
+    status: 'active',
+    color: COLORS.korea,
+  },
+  {
+    id: 'busan-tsushima',
+    from: 'busan', to: 'izuhara',
+    operator: 'Mirajet / Tsushima Line',
+    frequency: 'Daily (seasonal)',
+    duration: '~1.5 hrs (hydrofoil)',
+    status: 'seasonal',
+    color: COLORS.korea,
+  },
+  {
+    id: 'incheon-osaka',
+    from: 'incheon', to: 'osaka',
+    operator: 'Panstar Line',
+    frequency: 'Weekly',
+    duration: '~42 hrs',
+    status: 'active',
+    color: COLORS.korea,
+  },
+  {
+    id: 'donghae-sakaiminato',
+    from: 'donghae', to: 'sakaiminato',
+    operator: 'DBS Cruise Ferry (DBS크루즈페리)',
+    frequency: 'Weekly',
+    duration: '~16 hrs',
+    status: 'active',
+    color: COLORS.korea,
+  },
+  // ── Russia ───────────────────────────────────────────────────────────────
+  {
+    id: 'vlad-sakaiminato',
+    from: 'vladivostok', to: 'sakaiminato',
+    operator: 'DBS Cruise Ferry (via Donghae)',
+    frequency: 'Weekly',
+    duration: '~42 hrs total',
+    status: 'suspended',
+    color: COLORS.russia,
+    note: 'Suspended since 2022 due to sanctions',
+  },
+];
+
+// ── Marker styling ─────────────────────────────────────────────────────────
+function portMarker(port, isJapan) {
+  const color = isJapan ? '#f0c040' : '#adbac7';
+  return L.circleMarker(port.latlng, {
+    radius: isJapan ? 7 : 6,
+    fillColor: color,
+    color: '#0d1117',
+    weight: 2,
+    fillOpacity: 0.95,
+  });
+}
+
+// Track which ports get drawn
+const drawnPorts = new Set();
+
+function addPort(key) {
+  if (drawnPorts.has(key)) return;
+  drawnPorts.add(key);
+  const port = ports[key];
+  const isJapan = port.country === 'Japan';
+  const marker = portMarker(port, isJapan);
+  marker.addTo(map);
+  marker.bindTooltip(port.name, { permanent: false, direction: 'top', offset: [0, -6] });
+  marker.bindPopup(`
+    <div class="popup-title">${port.name}</div>
+    <div class="popup-meta">Country: ${port.country}</div>
+  `);
+}
+
+// ── Draw routes ────────────────────────────────────────────────────────────
+routes.forEach(route => {
+  const from = ports[route.from];
+  const to   = ports[route.to];
+  if (!from || !to) return;
+
+  const dashArray = route.status === 'suspended' ? '6 6'
+                  : route.status === 'seasonal'  ? '10 4'
+                  : null;
+
+  const line = L.polyline([from.latlng, to.latlng], {
+    color: route.color,
+    weight: route.status === 'active' ? 2.5 : 1.8,
+    opacity: route.status === 'suspended' ? 0.4 : 0.85,
+    dashArray,
+    smoothFactor: 1,
+  }).addTo(map);
+
+  const statusLabel = route.status === 'active'    ? '<span class="popup-badge badge-active">Active</span>'
+                    : route.status === 'suspended' ? '<span class="popup-badge badge-suspended">Suspended</span>'
+                    : '<span class="popup-badge badge-seasonal">Seasonal</span>';
+
+  line.bindPopup(`
+    <div class="popup-title">${from.name} → ${to.name}</div>
+    <div class="popup-meta">
+      Operator: ${route.operator}<br>
+      Frequency: ${route.frequency}<br>
+      Duration: ${route.duration}
+      ${route.note ? `<br><em>${route.note}</em>` : ''}
+    </div>
+    ${statusLabel}
+  `);
+
+  line.on('mouseover', function() { this.setStyle({ weight: this.options.weight + 2, opacity: 1 }); });
+  line.on('mouseout',  function() { this.setStyle({ weight: this.options.weight - 2, opacity: route.status === 'suspended' ? 0.4 : 0.85 }); });
+
+  addPort(route.from);
+  addPort(route.to);
+});
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <h4>Origin</h4>
+    <div class="legend-item"><div class="legend-line" style="background:${COLORS.china}"></div> China</div>
+    <div class="legend-item"><div class="legend-line" style="background:${COLORS.korea}"></div> South Korea</div>
+    <div class="legend-item"><div class="legend-line" style="background:${COLORS.russia}"></div> Russia</div>
+    <br>
+    <h4>Status</h4>
+    <div class="legend-item"><div class="legend-line" style="background:#aaa"></div> Active (solid)</div>
+    <div class="legend-item"><div class="legend-line" style="background:#aaa;background:repeating-linear-gradient(90deg,#aaa 0,#aaa 6px,transparent 6px,transparent 10px);height:3px"></div> Seasonal (dashed)</div>
+    <div class="legend-item"><div class="legend-line" style="background:repeating-linear-gradient(90deg,#666 0,#666 6px,transparent 6px,transparent 12px);height:2px"></div> Suspended (dotted)</div>
+    <br>
+    <h4>Ports</h4>
+    <div class="legend-item"><div class="legend-dot" style="background:#f0c040;border-color:#0d1117"></div> Japan port</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#adbac7;border-color:#0d1117"></div> Foreign port</div>
+  `;
+  return div;
+};
+legend.addTo(map);
+</script>
+</body>
+</html>
