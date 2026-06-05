@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ferry Lines to Japan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0d1117; color: #e6edf3; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    #header {
+      flex-shrink: 0;
+      padding: 14px 24px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      display: flex; align-items: center; gap: 14px;
+    }
+    #header h1 { font-size: 1.2rem; font-weight: 600; }
+    #header span { font-size: 0.82rem; color: #8b949e; }
+
+    #map-wrap { flex: 1; position: relative; overflow: hidden; }
+
+    svg#map {
+      width: 100%; height: 100%;
+      background: #1a2e45;
+      cursor: default;
+    }
+
+    /* Land polygons */
+    .land-mainland { fill: #2a3d28; stroke: #3a5535; stroke-width: 0.8; }
+    .land-japan    { fill: #304028; stroke: #4a6040; stroke-width: 0.8; }
+
+    /* Route lines */
+    .route { stroke-width: 2.2; fill: none; stroke-linecap: round; cursor: pointer; transition: stroke-width 0.15s, opacity 0.15s; }
+    .route:hover { stroke-width: 4; }
+    .route-china  { stroke: #f78166; }
+    .route-korea  { stroke: #58a6ff; }
+    .route-russia { stroke: #bc8cff; opacity: 0.45; stroke-dasharray: 7 5; }
+    .route-seasonal { stroke-dasharray: 10 5; opacity: 0.8; }
+
+    /* Direction arrows along routes */
+    .arrow { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
+    /* Port markers */
+    .port { cursor: pointer; }
+    .port-dot { transition: r 0.15s; }
+    .port:hover .port-dot { r: 9; }
+    .port-japan   .port-dot { fill: #f0c040; stroke: #0d1117; stroke-width: 1.5; }
+    .port-foreign .port-dot { fill: #adbac7; stroke: #0d1117; stroke-width: 1.5; }
+
+    /* Port labels */
+    .port-label {
+      font-size: 10.5px;
+      fill: #d1dce8;
+      pointer-events: none;
+      text-shadow: 0 1px 3px #0d1117;
+      paint-order: stroke;
+      stroke: #0d1117;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+
+    /* Grid lines */
+    .gridline { stroke: #1e3550; stroke-width: 0.5; fill: none; }
+    .gridlabel { font-size: 9px; fill: #2c4a68; }
+
+    /* Legend */
+    #legend {
+      position: absolute; bottom: 20px; left: 20px;
+      background: rgba(22, 27, 34, 0.92);
+      border: 1px solid #30363d; border-radius: 8px;
+      padding: 12px 16px; min-width: 190px;
+      backdrop-filter: blur(4px);
+      font-size: 0.8rem;
+    }
+    #legend h4 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: #8b949e; margin-bottom: 8px; }
+    #legend h4:not(:first-child) { margin-top: 10px; }
+    .leg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .leg-line { width: 28px; height: 3px; border-radius: 2px; }
+    .leg-dot  { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #0d1117; flex-shrink: 0; }
+
+    /* Tooltip / popup */
+    #tooltip {
+      position: absolute; pointer-events: none;
+      background: rgba(22, 27, 34, 0.97);
+      border: 1px solid #30363d; border-radius: 7px;
+      padding: 10px 14px; max-width: 260px;
+      display: none; z-index: 10;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.55);
+    }
+    #tooltip .tt-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; }
+    #tooltip .tt-meta  { font-size: 0.78rem; color: #8b949e; line-height: 1.65; }
+    #tooltip .tt-badge {
+      display: inline-block; margin-top: 6px;
+      padding: 2px 9px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;
+    }
+    .badge-active    { background: #1f4a8b; color: #58a6ff; }
+    .badge-suspended { background: #4a1f1f; color: #ff7b72; }
+    .badge-seasonal  { background: #2a3d10; color: #a5d46a; }
+
+    /* Scale bar */
+    #scalebar { position: absolute; bottom: 20px; right: 20px; font-size: 9px; color: #4a6a88; }
+    #scalebar line { stroke: #4a6a88; stroke-width: 1.5; }
+  </style>
+</head>
+<body>
+<div id="header">
+  <h1>Ferry Lines to Japan</h1>
+  <span>International routes — click routes &amp; ports for details</span>
+</div>
+
+<div id="map-wrap">
+  <svg id="map" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid meet"></svg>
+  <div id="tooltip"></div>
+  <div id="legend">
+    <h4>Origin</h4>
+    <div class="leg-row"><div class="leg-line" style="background:#f78166"></div> China</div>
+    <div class="leg-row"><div class="leg-line" style="background:#58a6ff"></div> South Korea</div>
+    <div class="leg-row"><div class="leg-line" style="background:#bc8cff;opacity:.6"></div> Russia</div>
+    <h4>Status</h4>
+    <div class="leg-row"><div class="leg-line" style="background:#aaa"></div> Active</div>
+    <div class="leg-row"><div class="leg-line" style="background:#aaa;background:repeating-linear-gradient(90deg,#aaa 0,#aaa 8px,transparent 8px,transparent 13px)"></div> Seasonal</div>
+    <div class="leg-row"><div class="leg-line" style="background:repeating-linear-gradient(90deg,#666 0,#666 6px,transparent 6px,transparent 11px)"></div> Suspended</div>
+    <h4>Ports</h4>
+    <div class="leg-row"><div class="leg-dot" style="background:#f0c040"></div> Japan port</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#adbac7"></div> Foreign port</div>
+  </div>
+</div>
+
+<script>
+// ── Projection ─────────────────────────────────────────────────────────────
+const W = 1400, H = 900;
+const LON_MIN = 114, LON_MAX = 149;
+const LAT_MIN = 22,  LAT_MAX = 47;
+
+function proj(lon, lat) {
+  return {
+    x: (lon - LON_MIN) / (LON_MAX - LON_MIN) * W,
+    y: (LAT_MAX - lat) / (LAT_MAX - LAT_MIN) * H,
+  };
+}
+
+function svgPt(lon, lat) { const p = proj(lon, lat); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }
+
+function pathStr(pts) {
+  return 'M' + pts.map(([lo, la]) => svgPt(lo, la)).join(' L') + ' Z';
+}
+
+// ── Land polygons ──────────────────────────────────────────────────────────
+const LAND = {
+  continent: [
+    [114.0,47.0],[131.0,47.0],[131.9,43.1],[131.2,42.3],
+    [130.6,42.3],[129.8,41.8],[129.2,40.7],[127.5,39.2],
+    [128.6,38.2],[129.1,37.5],[129.4,36.0],[129.4,35.5],
+    [129.0,35.1],[128.5,34.9],[128.0,34.7],[127.0,34.8],
+    [126.5,34.9],[126.4,35.3],[126.3,36.0],[126.1,36.7],
+    [126.6,37.5],[126.3,38.0],
+    [125.4,38.7],[124.8,39.5],[124.4,40.1],
+    [122.5,40.5],[122.1,39.0],[121.0,38.6],[120.2,38.9],
+    [117.5,38.5],[117.2,38.0],
+    [119.0,37.0],[122.5,37.8],[122.3,37.0],
+    [120.4,36.1],[119.5,35.5],[119.2,34.6],
+    [121.5,31.5],[121.6,31.2],
+    [120.7,28.0],[119.8,27.0],[119.3,26.1],
+    [118.1,24.5],[116.0,23.0],[114.2,22.4],
+    [114.0,22.0],
+  ],
+  taiwan: [
+    [121.5,25.3],[122.0,24.8],[121.5,22.0],
+    [120.8,22.0],[120.1,22.7],[120.0,23.5],
+    [120.7,24.5],[121.0,25.0],
+  ],
+  hokkaido: [
+    [140.7,41.8],[141.0,42.0],[141.5,42.5],[143.2,42.2],
+    [144.9,43.0],[145.1,44.1],[144.3,44.5],[142.5,45.0],
+    [141.7,45.4],[141.0,44.3],[141.0,43.2],[140.8,42.5],
+  ],
+  honshu: [
+    [130.94,33.95],[131.6,34.4],[131.8,34.7],[132.5,34.8],
+    [132.8,35.0],[133.2,35.5],[133.6,35.7],[134.2,35.5],
+    [135.2,35.5],[135.4,35.6],[136.1,36.0],[137.2,36.7],
+    [139.0,37.9],[139.3,38.5],[140.1,39.7],[140.5,41.1],
+    [141.5,41.5],[141.5,40.8],[141.5,38.3],[141.0,37.0],
+    [140.9,35.7],[139.9,35.3],[139.5,35.2],[138.9,34.6],
+    [138.1,34.6],[137.7,34.6],[137.0,34.9],[136.8,34.5],
+    [136.0,33.4],[135.8,33.4],[135.2,34.0],[135.2,34.7],
+    [135.5,34.8],[135.8,34.5],[134.8,34.3],[134.5,34.2],
+    [134.2,34.1],[133.6,34.2],[133.2,34.4],[132.6,34.8],
+    [132.2,35.1],[131.8,35.2],[131.2,34.9],
+  ],
+  shikoku: [
+    [132.7,33.9],[132.6,33.4],[133.0,32.7],[133.5,32.8],
+    [134.2,33.2],[134.8,33.6],[134.7,34.0],[134.5,34.2],
+    [134.0,34.2],[133.6,34.2],[133.0,34.2],[132.8,34.0],
+  ],
+  kyushu: [
+    [130.94,33.95],[130.8,33.9],[130.4,33.6],[130.0,33.2],
+    [129.7,33.2],[129.8,32.6],[130.0,32.0],[130.5,31.5],
+    [130.7,31.0],[131.0,31.5],[131.4,32.0],[131.7,32.5],
+    [131.7,33.2],[131.5,33.5],[131.0,33.9],
+  ],
+  okinawa: [
+    [127.7,26.2],[127.9,26.4],[128.3,26.4],[128.5,26.2],
+    [128.3,26.0],[128.0,25.9],[127.7,26.0],
+  ],
+};
+
+// ── Ports ──────────────────────────────────────────────────────────────────
+const PORTS = {
+  osaka:       { name:'Osaka',             lon:135.406, lat:34.646, jp:true,  labelOff:[ 6,-6] },
+  kobe:        { name:'Kobe',              lon:135.185, lat:34.682, jp:true,  labelOff:[-36,-6] },
+  shimonoseki: { name:'Shimonoseki',       lon:130.937, lat:33.954, jp:true,  labelOff:[ 6, 12] },
+  hakata:      { name:'Hakata (Fukuoka)',  lon:130.399, lat:33.598, jp:true,  labelOff:[-80, 14] },
+  sakaiminato: { name:'Sakaiminato',       lon:133.228, lat:35.546, jp:true,  labelOff:[ 6, -6] },
+  naha:        { name:'Naha (Okinawa)',    lon:127.665, lat:26.218, jp:true,  labelOff:[ 8,  0] },
+  izuhara:     { name:'Izuhara (Tsushima)',lon:129.290, lat:34.199, jp:true,  labelOff:[ 8,  3] },
+  shanghai:    { name:'Shanghai',          lon:121.618, lat:31.381, jp:false, labelOff:[ 8,  3] },
+  tianjin:     { name:'Tianjin',           lon:117.728, lat:38.993, jp:false, labelOff:[ 8,  3] },
+  dalian:      { name:'Dalian',            lon:121.641, lat:38.929, jp:false, labelOff:[ 8,  3] },
+  qingdao:     { name:'Qingdao',           lon:120.361, lat:36.063, jp:false, labelOff:[ 8,  3] },
+  weihai:      { name:'Weihai',            lon:122.116, lat:37.506, jp:false, labelOff:[ 8,  3] },
+  busan:       { name:'Busan',             lon:129.032, lat:35.097, jp:false, labelOff:[ 8,  3] },
+  incheon:     { name:'Incheon',           lon:126.706, lat:37.455, jp:false, labelOff:[ 8,  3] },
+  donghae:     { name:'Donghae',           lon:129.114, lat:37.524, jp:false, labelOff:[ 8,  3] },
+  vladivostok: { name:'Vladivostok',       lon:131.882, lat:43.115, jp:false, labelOff:[ 8,  3] },
+};
+
+// ── Routes ─────────────────────────────────────────────────────────────────
+const ROUTES = [
+  // China
+  { from:'shanghai',    to:'osaka',        cls:'route-china',  status:'active',
+    operator:'Shanghai Ferry / Japan China International Ferry', freq:'Weekly', dur:'~48 hrs' },
+  { from:'shanghai',    to:'kobe',         cls:'route-china',  status:'active',
+    operator:'Orient Ferry (China)', freq:'Weekly', dur:'~46 hrs' },
+  { from:'tianjin',     to:'kobe',         cls:'route-china',  status:'active',
+    operator:'China-Japan International Ferry', freq:'Weekly', dur:'~45 hrs' },
+  { from:'dalian',      to:'kobe',         cls:'route-china',  status:'active',
+    operator:'China-Japan International Ferry', freq:'Weekly', dur:'~35 hrs' },
+  { from:'qingdao',     to:'shimonoseki',  cls:'route-china',  status:'active',
+    operator:'Qingdao International Ferry', freq:'Weekly', dur:'~34 hrs' },
+  { from:'weihai',      to:'osaka',        cls:'route-china',  status:'active',
+    operator:'Xinjianzhen International Ferry', freq:'Weekly', dur:'~40 hrs' },
+  // Korea
+  { from:'busan',       to:'shimonoseki',  cls:'route-korea',  status:'active',
+    operator:'Kampu Ferry (関釜フェリー)', freq:'Daily', dur:'~14 hrs' },
+  { from:'busan',       to:'hakata',       cls:'route-korea',  status:'active',
+    operator:'Camellia Line / Kyushu Yusen / JR Beetle', freq:'Multiple daily', dur:'3–6 hrs' },
+  { from:'busan',       to:'osaka',        cls:'route-korea',  status:'active',
+    operator:'Panstar Line (팬스타라인)', freq:'Weekly', dur:'~19 hrs' },
+  { from:'busan',       to:'izuhara',      cls:'route-korea route-seasonal', status:'seasonal',
+    operator:'Mirajet / Tsushima Line', freq:'Daily (seasonal)', dur:'~1.5 hrs' },
+  { from:'incheon',     to:'osaka',        cls:'route-korea',  status:'active',
+    operator:'Panstar Line', freq:'Weekly', dur:'~42 hrs' },
+  { from:'donghae',     to:'sakaiminato',  cls:'route-korea',  status:'active',
+    operator:'DBS Cruise Ferry (DBS크루즈페리)', freq:'Weekly', dur:'~16 hrs' },
+  // Russia
+  { from:'vladivostok', to:'sakaiminato',  cls:'route-russia', status:'suspended',
+    operator:'DBS Cruise Ferry (via Donghae)',
+    freq:'Weekly (suspended)', dur:'~42 hrs',
+    note:'Suspended March 2022 following Russia sanctions' },
+];
+
+// ── SVG build ──────────────────────────────────────────────────────────────
+const svg = document.getElementById('map');
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  (parent || svg).appendChild(e);
+  return e;
+}
+
+// Ocean background
+el('rect', { x:0, y:0, width:W, height:H, fill:'#1a2e45' });
+
+// Subtle ocean gradient
+const defs = el('defs');
+const grad = el('radialGradient', { id:'ocean-grad', cx:'70%', cy:'55%', r:'60%' }, defs);
+el('stop', { offset:'0%',   'stop-color':'#22405e', 'stop-opacity':'0.5' }, grad);
+el('stop', { offset:'100%', 'stop-color':'#0d1f30', 'stop-opacity':'0.5' }, grad);
+el('rect', { x:0, y:0, width:W, height:H, fill:'url(#ocean-grad)' });
+
+// Lat/lon grid
+for (let lat = 25; lat <= 45; lat += 5) {
+  const y = proj(0, lat).y;
+  el('line', { x1:0, y1:y, x2:W, y2:y, class:'gridline' });
+  el('text', { x:6, y:y-3, class:'gridlabel' }).textContent = `${lat}°N`;
+}
+for (let lon = 115; lon <= 145; lon += 5) {
+  const x = proj(lon, 0).x;
+  el('line', { x1:x, y1:0, x2:x, y2:H, class:'gridline' });
+  el('text', { x:x+3, y:H-6, class:'gridlabel' }).textContent = `${lon}°E`;
+}
+
+// Land
+el('path', { d: pathStr(LAND.continent), class:'land-mainland' });
+el('path', { d: pathStr(LAND.taiwan),    class:'land-mainland' });
+el('path', { d: pathStr(LAND.hokkaido),  class:'land-japan' });
+el('path', { d: pathStr(LAND.honshu),    class:'land-japan' });
+el('path', { d: pathStr(LAND.shikoku),   class:'land-japan' });
+el('path', { d: pathStr(LAND.kyushu),    class:'land-japan' });
+el('path', { d: pathStr(LAND.okinawa),   class:'land-japan' });
+
+// ── Tooltip ────────────────────────────────────────────────────────────────
+const tooltip = document.getElementById('tooltip');
+let tooltipTarget = null;
+
+function showTooltip(html, e) {
+  tooltip.innerHTML = html;
+  tooltip.style.display = 'block';
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const wrap = document.getElementById('map-wrap');
+  const rect = wrap.getBoundingClientRect();
+  let tx = e.clientX - rect.left + 14;
+  let ty = e.clientY - rect.top  + 14;
+  if (tx + 275 > rect.width)  tx = e.clientX - rect.left - 275;
+  if (ty + 140 > rect.height) ty = e.clientY - rect.top  - 130;
+  tooltip.style.left = tx + 'px';
+  tooltip.style.top  = ty + 'px';
+}
+function hideTooltip() { tooltip.style.display = 'none'; }
+
+document.getElementById('map-wrap').addEventListener('mousemove', e => {
+  if (tooltip.style.display === 'block') moveTooltip(e);
+});
+
+// ── Routes ─────────────────────────────────────────────────────────────────
+const routeLayer = el('g', { id:'routes' });
+ROUTES.forEach(r => {
+  const f = PORTS[r.from], t = PORTS[r.to];
+  const fp = proj(f.lon, f.lat), tp = proj(t.lon, t.lat);
+
+  // Slight midpoint offset for visual curvature
+  const mx = (fp.x + tp.x) / 2 + (tp.y - fp.y) * 0.08;
+  const my = (fp.y + tp.y) / 2 - (tp.x - fp.x) * 0.08;
+
+  const d = `M${fp.x.toFixed(1)},${fp.y.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${tp.x.toFixed(1)},${tp.y.toFixed(1)}`;
+  const path = el('path', { d, class:`route ${r.cls}` }, routeLayer);
+
+  const badgeClass = r.status === 'active' ? 'badge-active' : r.status === 'suspended' ? 'badge-suspended' : 'badge-seasonal';
+  const statusLabel = r.status === 'active' ? 'Active' : r.status === 'suspended' ? 'Suspended' : 'Seasonal';
+
+  path.addEventListener('mouseenter', e => {
+    showTooltip(`
+      <div class="tt-title">${f.name} → ${t.name}</div>
+      <div class="tt-meta">
+        <b>Operator:</b> ${r.operator}<br>
+        <b>Frequency:</b> ${r.freq}<br>
+        <b>Duration:</b> ${r.dur}
+        ${r.note ? `<br><i style="color:#8b949e">${r.note}</i>` : ''}
+      </div>
+      <span class="tt-badge ${badgeClass}">${statusLabel}</span>
+    `, e);
+  });
+  path.addEventListener('mouseleave', hideTooltip);
+});
+
+// ── Ports ──────────────────────────────────────────────────────────────────
+const portLayer = el('g', { id:'ports' });
+Object.entries(PORTS).forEach(([key, p]) => {
+  const pt = proj(p.lon, p.lat);
+  const g = el('g', { class:`port ${p.jp ? 'port-japan' : 'port-foreign'}` }, portLayer);
+
+  el('circle', { class:'port-dot', cx:pt.x, cy:pt.y, r:6 }, g);
+
+  const lx = pt.x + p.labelOff[0];
+  const ly = pt.y + p.labelOff[1];
+  const lbl = el('text', { class:'port-label', x:lx, y:ly }, g);
+  lbl.textContent = p.name;
+
+  g.addEventListener('mouseenter', e => {
+    showTooltip(`<div class="tt-title">${p.name}</div><div class="tt-meta">Country: ${p.jp ? 'Japan' : 'International'}</div>`, e);
+  });
+  g.addEventListener('mouseleave', hideTooltip);
+});
+
+// ── Japan label ────────────────────────────────────────────────────────────
+const jl = el('text', { x:925, y:380, fill:'#4a6040', 'font-size':'11', 'font-weight':'600',
+  'letter-spacing':'3', opacity:'0.7', transform:'rotate(-25,925,380)' });
+jl.textContent = 'JAPAN';
+
+const cl = el('text', { x:120, y:480, fill:'#2a4028', 'font-size':'11', 'font-weight':'600',
+  'letter-spacing':'2', opacity:'0.7' });
+cl.textContent = 'CHINA';
+
+const kl = el('text', { x:490, y:390, fill:'#2a4028', 'font-size':'9', 'font-weight':'600',
+  'letter-spacing':'1', opacity:'0.7', transform:'rotate(-5,490,390)' });
+kl.textContent = 'KOREA';
+
+const rl = el('text', { x:650, y:90, fill:'#2a4028', 'font-size':'9', 'font-weight':'600',
+  opacity:'0.6' });
+rl.textContent = 'RUSSIA';
+</script>
+</body>
+</html>
